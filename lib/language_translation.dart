@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:translator/translator.dart';
 
 class LanguageTranslationPage extends StatefulWidget {
   const LanguageTranslationPage({super.key});
@@ -8,7 +9,33 @@ class LanguageTranslationPage extends StatefulWidget {
 }
 
 class _LanguageTranslationPageState extends State<LanguageTranslationPage> {
-  var language = ['Hindi','English','Bengali'];
+  var languages = ['Hindi','English','Bengali'];
+  var originLanguage = "From";
+  var destinationLanguage = "To";
+  var output = "";
+  TextEditingController languageController = TextEditingController();
+  void translate(String src, String dest, String input) async{
+    GoogleTranslator translator = new GoogleTranslator();
+    var translation = await translator.translate(input,from:src,to:dest);
+    setState(() {
+      output = translation.text.toString();
+    });
+    if(src=='--' || dest=='--'){
+      setState(() {
+        output ="Fail to translate";
+      });
+    }
+  }
+  String getLanguageCode(String language){
+    if(language=="English"){
+      return"en";
+    }else if(language=="Hindi"){
+      return"hi";
+    }else if(language=="Bengali"){
+      return"Be";
+    }
+    return "--";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +121,7 @@ class _LanguageTranslationPageState extends State<LanguageTranslationPage> {
               ),
               controller: languageController,
               validator: (value){
-                if(value==null || value.isEmty){
+                if(value==null || value.isEmpty){
                 return 'Please enter text to translate';
                 }
                 return null;
@@ -102,8 +129,23 @@ class _LanguageTranslationPageState extends State<LanguageTranslationPage> {
             ),),
             Padding(padding: EdgeInsets.all(8),
             child:ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Color(0xff2b3c5a)),
-              onPressed:(){}, child: Text("Translate")),)
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff2b3c5a)),
+              onPressed:(){
+                translate(getLanguageCode(originLanguage), getLanguageCode(destinationLanguage), languageController.text.toString());
+
+              },
+                child: Text("Translate")),
+            ),
+            SizedBox(height: 20,),
+            Text(
+              "\n$output",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            )
           ],
          ),
         ),
